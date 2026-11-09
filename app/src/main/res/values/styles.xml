@@ -1,9 +1,10 @@
 <resources>
     <style name="Theme.KugoQR" parent="Theme.Material3.DayNight.NoActionBar">
-        <item name="colorPrimary">#FF6D00</item>
-        <item name="colorSecondary">#FF9100</item>
-        <item name="android:statusBarColor">#121212</item>
-        <item name="android:navigationBarColor">#121212</item>
+        <item name="colorPrimary">#12D889</item>
+        <item name="colorSecondary">#20C8FF</item>
+        <item name="android:statusBarColor">#07111F</item>
+        <item name="android:navigationBarColor">#07111F</item>
         <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowActionModeOverlay">true</item>
     </style>
 </resources>
