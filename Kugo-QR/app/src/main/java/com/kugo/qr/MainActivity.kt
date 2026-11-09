@@ -1,0 +1,175 @@
+package com.kugo.qr
+
+import android.Manifest
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Bundle
+import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.core.content.ContextCompat
+import com.google.android.material.button.MaterialButton
+import com.google.mlkit.vision.barcode.BarcodeScanner
+import com.google.mlkit.vision.barcode.BarcodeScanning
+import com.google.mlkit.vision.common.InputImage
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+
+class MainActivity : AppCompatActivity() {
+    private lateinit var scanner: BarcodeScanner
+    private lateinit var cameraExecutor: ExecutorService
+    private lateinit var resultText: TextView
+    private lateinit var statusText: TextView
+    private var lastResult: String = ""
+    private var isProcessing = false
+
+    private val galleryPicker = registerForActivityResult(
+        ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let { scanImage(it) }
+    }
+
+    private val cameraPermission = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) startCamera()
+        else statusText.text = "Permissão da câmera necessária para escanear."
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        scanner = BarcodeScanning.getClient()
+        cameraExecutor = Executors.newSingleThreadExecutor()
+        resultText = findViewById(R.id.resultText)
+        statusText = findViewById(R.id.statusText)
+
+        findViewById<MaterialButton>(R.id.galleryButton).setOnClickListener {
+            galleryPicker.launch("image/*")
+        }
+        findViewById<MaterialButton>(R.id.copyButton).setOnClickListener {
+            if (lastResult.isBlank()) {
+                toast("Nenhum resultado para copiar.")
+            } else {
+                val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                clipboard.setPrimaryClip(ClipData.newPlainText("Kugo QR", lastResult))
+                toast("Resultado copiado!")
+            }
+        }
+        findViewById<MaterialButton>(R.id.openButton).setOnClickListener {
+            openResult()
+        }
+
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+            == PackageManager.PERMISSION_GRANTED
+        ) startCamera() else cameraPermission.launch(Manifest.permission.CAMERA)
+    }
+
+    private fun startCamera() {
+        val providerFuture = ProcessCameraProvider.getInstance(this)
+        providerFuture.addListener({
+            val provider = providerFuture.get()
+            val preview = Preview.Builder().build().also {
+                it.surfaceProvider = findViewById<androidx.camera.view.PreviewView>(
+                    R.id.previewView
+                ).surfaceProvider
+            }
+            val analysis = ImageAnalysis.Builder()
+                .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                .build()
+
+            analysis.setAnalyzer(cameraExecutor) { proxy ->
+                if (isProcessing) {
+                    proxy.close()
+                    return@setAnalyzer
+                }
+                val mediaImage = proxy.image
+                if (mediaImage == null) {
+                    proxy.close()
+                    return@setAnalyzer
+                }
+                isProcessing = true
+                val image = InputImage.fromMediaImage(
+                    mediaImage, proxy.imageInfo.rotationDegrees
+                )
+                scanner.process(image)
+                    .addOnSuccessListener { barcodes ->
+                        val value = barcodes.firstOrNull()?.rawValue
+                        if (!value.isNullOrBlank()) runOnUiThread { showResult(value) }
+                    }
+                    .addOnCompleteListener {
+                        isProcessing = false
+                        proxy.close()
+                    }
+            }
+
+            try {
+                provider.unbindAll()
+                provider.bindToLifecycle(
+                    this, CameraSelector.DEFAULT_BACK_CAMERA, preview, analysis
+                )
+                statusText.text = "Câmera ativa • procurando QR Code..."
+            } catch (e: Exception) {
+                statusText.text = "Não foi possível iniciar a câmera."
+            }
+        }, ContextCompat.getMainExecutor(this))
+    }
+
+    private fun scanImage(uri: Uri) {
+        statusText.text = "Analisando imagem..."
+        try {
+            val image = InputImage.fromFilePath(this, uri)
+            scanner.process(image)
+                .addOnSuccessListener { barcodes ->
+                    val value = barcodes.firstOrNull()?.rawValue
+                    if (!value.isNullOrBlank()) showResult(value)
+                    else statusText.text = "Nenhum código encontrado nessa imagem."
+                }
+                .addOnFailureListener {
+                    statusText.text = "Erro ao analisar a imagem."
+                }
+        } catch (e: Exception) {
+            statusText.text = "Não foi possível abrir essa imagem."
+        }
+    }
+
+    private fun showResult(value: String) {
+        if (value == lastResult) return
+        lastResult = value
+        resultText.text = value
+        statusText.text = "QR Code encontrado!"
+        toast("QR Code lido com sucesso.")
+    }
+
+    private fun openResult() {
+        if (lastResult.isBlank()) {
+            toast("Nenhum link disponível.")
+            return
+        }
+        val uri = runCatching { Uri.parse(lastResult) }.getOrNull()
+        if (uri == null || uri.scheme !in listOf("http", "https")) {
+            toast("O conteúdo encontrado não é um link HTTP/HTTPS.")
+            return
+        }
+        startActivity(Intent(Intent.ACTION_VIEW, uri))
+    }
+
+    private fun toast(message: String) =
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+
+    override fun onDestroy() {
+        super.onDestroy()
+        cameraExecutor.shutdown()
+        scanner.close()
+    }
+}
