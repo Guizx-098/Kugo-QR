@@ -1,10 +1,10 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#07111F">
+    android:background="#080E18">
 
-    <!-- A câmera ocupa toda a área disponível. Não existe moldura ou zona central obrigatória. -->
     <androidx.camera.view.PreviewView
         android:id="@+id/previewView"
         android:layout_width="match_parent"
@@ -13,7 +13,7 @@
 
     <View
         android:layout_width="match_parent"
-        android:layout_height="190dp"
+        android:layout_height="112dp"
         android:layout_gravity="top"
         android:background="@drawable/top_scrim" />
 
@@ -24,45 +24,32 @@
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:paddingStart="20dp"
-        android:paddingTop="18dp"
-        android:paddingEnd="20dp"
-        android:paddingBottom="16dp">
+        android:paddingTop="10dp"
+        android:paddingEnd="18dp"
+        android:paddingBottom="10dp">
 
-        <LinearLayout
+        <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:orientation="vertical">
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Kugo QR"
-                android:textColor="#FFFFFF"
-                android:textSize="25sp"
-                android:fontFamily="sans"
-                android:textStyle="bold" />
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="2dp"
-                android:text="ESCANEIE. ACESSE. RÁPIDO."
-                android:textColor="#C7D6E8"
-                android:textSize="10sp"
-                android:letterSpacing="0.12" />
-        </LinearLayout>
+            android:text="Kugo QR"
+            android:textColor="#FFFFFF"
+            android:textSize="21sp"
+            android:fontFamily="sans"
+            android:textStyle="bold" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/torchButton"
-            android:layout_width="52dp"
-            android:layout_height="52dp"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
             android:minWidth="0dp"
             android:minHeight="0dp"
             android:padding="0dp"
             android:text="ϟ"
             android:textColor="#FFFFFF"
-            android:textSize="27sp"
-            app:backgroundTint="#9930445D"
-            app:cornerRadius="17dp" />
+            android:textSize="24sp"
+            app:backgroundTint="#B31B293A"
+            app:cornerRadius="15dp" />
     </LinearLayout>
 
     <LinearLayout
@@ -70,115 +57,111 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         android:orientation="vertical"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:paddingBottom="14dp">
+        android:paddingStart="14dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="10dp">
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/panel_bg"
-            android:elevation="12dp"
+            android:elevation="8dp"
             android:orientation="vertical"
-            android:padding="18dp">
+            android:padding="13dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="center_vertical"
                 android:orientation="horizontal">
+
                 <View
-                    android:layout_width="9dp"
-                    android:layout_height="9dp"
+                    android:layout_width="7dp"
+                    android:layout_height="7dp"
                     android:background="@drawable/status_dot" />
+
                 <TextView
                     android:id="@+id/statusText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="9dp"
                     android:layout_weight="1"
-                    android:text="Procurando QR Code em toda a tela"
-                    android:textColor="#EAF5FF"
+                    android:text="Aponte para um QR Code"
+                    android:textColor="#F2F6FC"
                     android:textSize="13sp"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="LIVE"
-                    android:textColor="#20E69B"
-                    android:textSize="10sp"
+                    android:text="AO VIVO"
+                    android:textColor="#20D99A"
+                    android:textSize="9sp"
                     android:textStyle="bold"
-                    android:letterSpacing="0.12" />
+                    android:letterSpacing="0.08" />
             </LinearLayout>
 
             <TextView
                 android:id="@+id/resultText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="10dp"
                 android:background="#263247"
-                android:padding="13dp"
-                android:text="Aponte a câmera para qualquer QR Code. Não precisa alinhar."
-                android:textColor="#DCE8F5"
-                android:textSize="13sp"
+                android:padding="11dp"
+                android:textColor="#E5EDF7"
+                android:textSize="12sp"
                 android:maxLines="2"
-                android:ellipsize="end" />
+                android:ellipsize="middle"
+                android:visibility="gone" />
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="14dp"
+                android:layout_marginTop="11dp"
                 android:orientation="horizontal">
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/galleryButton"
                     android:layout_width="0dp"
-                    android:layout_height="52dp"
+                    android:layout_height="44dp"
                     android:layout_weight="1"
-                    android:layout_marginEnd="5dp"
+                    android:layout_marginEnd="4dp"
                     android:text="Galeria"
                     android:textAllCaps="false"
-                    android:textColor="#FFFFFF"
+                    android:textColor="#F5F7FB"
                     android:textSize="12sp"
                     app:backgroundTint="#30445E"
-                    app:cornerRadius="15dp" />
+                    app:cornerRadius="13dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/copyButton"
                     android:layout_width="0dp"
-                    android:layout_height="52dp"
+                    android:layout_height="44dp"
                     android:layout_weight="1"
-                    android:layout_marginStart="5dp"
-                    android:layout_marginEnd="5dp"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="4dp"
                     android:text="Copiar"
                     android:textAllCaps="false"
-                    android:textColor="#FFFFFF"
+                    android:textColor="#F5F7FB"
                     android:textSize="12sp"
                     app:backgroundTint="#30445E"
-                    app:cornerRadius="15dp" />
+                    app:cornerRadius="13dp" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/openButton"
                     android:layout_width="0dp"
-                    android:layout_height="52dp"
+                    android:layout_height="44dp"
                     android:layout_weight="1"
-                    android:layout_marginStart="5dp"
+                    android:layout_marginStart="4dp"
                     android:text="Abrir"
                     android:textAllCaps="false"
                     android:textColor="#062015"
                     android:textSize="12sp"
                     app:backgroundTint="#20D990"
-                    app:cornerRadius="15dp" />
+                    app:cornerRadius="13dp" />
             </LinearLayout>
         </LinearLayout>
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:gravity="center"
-            android:text="KUGO QR  •  LEITURA INTELIGENTE"
-            android:textColor="#D9E5F2"
-            android:textSize="9sp"
-            android:letterSpacing="0.14" />
     </LinearLayout>
 </FrameLayout>

@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
+import android.view.View
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -18,6 +19,9 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
 import com.google.android.material.button.MaterialButton
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScanning
@@ -49,7 +53,18 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        window.statusBarColor = android.graphics.Color.rgb(8, 14, 24)
+        window.navigationBarColor = android.graphics.Color.rgb(8, 14, 24)
         setContentView(R.layout.activity_main)
+
+        val rootView = findViewById<View>(R.id.rootContainer)
+        ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, insets ->
+            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+            view.setPadding(0, systemBars.top, 0, systemBars.bottom)
+            insets
+        }
+        ViewCompat.requestApplyInsets(rootView)
 
         scanner = BarcodeScanning.getClient()
         cameraExecutor = Executors.newSingleThreadExecutor()
@@ -129,7 +144,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun scanImage(uri: Uri) {
-        statusText.text = "Analisando imagem da galeria..."
+        statusText.text = "Analisando imagem..."
         try {
             val image = InputImage.fromFilePath(this, uri)
             scanner.process(image)
@@ -148,7 +163,8 @@ class MainActivity : AppCompatActivity() {
         if (value == lastResult) return
         lastResult = value
         resultText.text = value
-        statusText.text = "✓  QR Code identificado! Toque em Copiar ou Abrir."
+        resultText.visibility = View.VISIBLE
+        statusText.text = "QR Code identificado"
         toast("QR Code lido!")
     }
 

@@ -2,17 +2,17 @@
 
 **Escaneie. Acesse. Rápido.**
 
-Leitor de QR Code para Android com interface renovada e câmera em tela cheia.
+Leitor de QR Code para Android com leitura automática pela câmera e interface minimalista.
 
-## ✨ Novidades da versão 1.1.0
-- 🎨 Interface redesenhada com visual moderno, escuro e detalhes em verde.
-- 📷 Pré-visualização da câmera ocupando toda a tela.
-- ⚡ Leitura em toda a imagem da câmera: não existe quadrado obrigatório nem necessidade de alinhar o código no centro.
-- 🔦 Botão para ligar e desligar o flash (quando disponível).
-- 🖼️ Leitura de QR Code em imagens da galeria.
+## ✨ Novidades da versão 1.2.0
+- 🎨 Interface mais limpa, compacta e sem áreas vazias exageradas.
+- 📷 Câmera em destaque, com degradê superior mais discreto.
+- 📱 Ajuste das barras de status e navegação para evitar sobreposição.
+- 🧾 Resultado aparece somente quando um QR Code é identificado.
+- 🔦 Controle de flash quando disponível.
+- 🖼️ Leitura de QR Code pela galeria.
 - 📋 Copiar o conteúdo encontrado.
 - 🌐 Abrir links HTTP/HTTPS.
-- 🟢 Novo ícone do aplicativo.
 
 ## 🧰 Tecnologias
 - Kotlin
@@ -29,8 +29,8 @@ gradle assembleDebug
 
 APK: `app/build/outputs/apk/debug/app-debug.apk`
 
-## 🤖 GitHub Actions
-O workflow em `.github/workflows/android.yml` compila o app em pushes para `main`, permite execução manual e publica uma Release quando uma tag `v*` é enviada.
+## 🤖 GitHub Actions e Releases
+O workflow compila o APK em pushes para `main` e também pode ser iniciado manualmente. Ao publicar uma tag `v*`, o APK é anexado automaticamente à GitHub Release e disponibilizado como artefato do Actions.
 
 ## 📄 Licença
 MIT
