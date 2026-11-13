@@ -54,14 +54,23 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
-        window.statusBarColor = android.graphics.Color.rgb(8, 14, 24)
+        window.statusBarColor = android.graphics.Color.TRANSPARENT
         window.navigationBarColor = android.graphics.Color.rgb(8, 14, 24)
+        if (android.os.Build.VERSION.SDK_INT >= 29) {
+            window.isStatusBarContrastEnforced = false
+        }
         setContentView(R.layout.activity_main)
 
         val rootView = findViewById<View>(R.id.rootContainer)
+        val headerBar = findViewById<View>(R.id.headerBar)
+        val density = resources.displayMetrics.density
         ViewCompat.setOnApplyWindowInsetsListener(rootView) { view, insets ->
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(0, systemBars.top, 0, systemBars.bottom)
+            view.setPadding(0, 0, 0, systemBars.bottom)
+            headerBar.setPadding(
+                (20 * density).toInt(), systemBars.top + (10 * density).toInt(),
+                (18 * density).toInt(), (10 * density).toInt()
+            )
             insets
         }
         ViewCompat.requestApplyInsets(rootView)

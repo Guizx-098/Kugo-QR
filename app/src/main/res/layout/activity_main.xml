@@ -11,13 +11,8 @@
         android:layout_height="match_parent"
         app:scaleType="fillCenter" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="112dp"
-        android:layout_gravity="top"
-        android:background="@drawable/top_scrim" />
-
     <LinearLayout
+        android:id="@+id/headerBar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
@@ -35,7 +30,7 @@
             android:text="Kugo QR"
             android:textColor="#FFFFFF"
             android:textSize="21sp"
-            android:fontFamily="sans"
+            android:fontFamily="sans-serif-rounded"
             android:textStyle="bold" />
 
         <com.google.android.material.button.MaterialButton
@@ -89,6 +84,7 @@
                     android:text="Aponte para um QR Code"
                     android:textColor="#F2F6FC"
                     android:textSize="13sp"
+                    android:fontFamily="sans-serif-medium"
                     android:textStyle="bold"
                     android:maxLines="1"
                     android:ellipsize="end" />
@@ -132,6 +128,7 @@
                     android:textAllCaps="false"
                     android:textColor="#F5F7FB"
                     android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium"
                     app:backgroundTint="#30445E"
                     app:cornerRadius="13dp" />
 
@@ -146,6 +143,7 @@
                     android:textAllCaps="false"
                     android:textColor="#F5F7FB"
                     android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium"
                     app:backgroundTint="#30445E"
                     app:cornerRadius="13dp" />
 
@@ -159,6 +157,7 @@
                     android:textAllCaps="false"
                     android:textColor="#062015"
                     android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium"
                     app:backgroundTint="#20D990"
                     app:cornerRadius="13dp" />
             </LinearLayout>
