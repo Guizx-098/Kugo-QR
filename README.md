@@ -4,7 +4,7 @@
 
 Leitor de QR Code para Android com leitura automática pela câmera e interface minimalista.
 
-## ✨ Novidades da versão 1.2.1
+## ✨ Novidades da versão 1.3.0
 - 🎨 Interface mais limpa, compacta e sem áreas vazias exageradas.
 - 📷 Câmera em destaque, com degradê superior mais discreto.
 - 📱 Ajuste das barras de status e navegação para evitar sobreposição.

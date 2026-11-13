@@ -161,6 +161,41 @@
                     app:backgroundTint="#20D990"
                     app:cornerRadius="13dp" />
             </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/createQrButton"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:layout_marginEnd="4dp"
+                    android:text="Criar QR Code"
+                    android:textAllCaps="false"
+                    android:textColor="#062015"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium"
+                    app:backgroundTint="#20D990"
+                    app:cornerRadius="12dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/savedQrsButton"
+                    android:layout_width="0dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:layout_marginStart="4dp"
+                    android:text="Meus QR Codes"
+                    android:textAllCaps="false"
+                    android:textColor="#F5F7FB"
+                    android:textSize="12sp"
+                    android:fontFamily="sans-serif-medium"
+                    app:backgroundTint="#30445E"
+                    app:cornerRadius="12dp" />
+            </LinearLayout>
         </LinearLayout>
     </LinearLayout>
 </FrameLayout>

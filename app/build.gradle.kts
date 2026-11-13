@@ -11,8 +11,8 @@ android {
         applicationId = "com.kugo.qr"
         minSdk = 23
         targetSdk = 35
-        versionCode = 4
-        versionName = "1.2.1"
+        versionCode = 5
+        versionName = "1.3.0"
     }
 
     buildTypes {
@@ -40,4 +40,5 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:$cameraX")
     implementation("androidx.camera:camera-view:$cameraX")
     implementation("com.google.mlkit:barcode-scanning:17.3.0")
+    implementation("com.google.zxing:core:3.5.3")
 }
