@@ -251,6 +251,7 @@ class MainActivity : AppCompatActivity() {
             .setPositiveButton("Gerar", null)
             .create()
         dialog.setOnShowListener {
+            styleDialog(dialog)
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
                 val name = nameInput.text.toString().trim()
                 val rawUrl = urlInput.text.toString().trim()
@@ -269,13 +270,13 @@ class MainActivity : AppCompatActivity() {
                     return@setOnClickListener
                 }
                 dialog.dismiss()
-                showQrPreview(SavedQr(name, url), saveAfterPreview = true)
+                showQrPreview(SavedQr(name, url), saveAfterPreview = true, original = existing)
             }
         }
         dialog.show()
     }
 
-    private fun showQrPreview(item: SavedQr, saveAfterPreview: Boolean) {
+    private fun showQrPreview(item: SavedQr, saveAfterPreview: Boolean, original: SavedQr? = null) {
         val bitmap = try { makeQrBitmap(item.url) } catch (e: Exception) {
             toast("Não foi possível gerar esse QR Code.")
             return
@@ -315,17 +316,20 @@ class MainActivity : AppCompatActivity() {
             .setView(content)
             .setNegativeButton("Fechar", null)
             .setNeutralButton("Baixar imagem", null)
-            .setPositiveButton(if (saveAfterPreview) "Salvar" else "Salvar alterações", null)
+            .setPositiveButton(if (saveAfterPreview && original == null) "Salvar QR Code" else if (original != null) "Salvar alterações" else "Fechar", null)
         val dialog = builder.create()
         dialog.setOnShowListener {
             dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setOnClickListener {
                 saveQrImage(bitmap, item.name)
             }
             dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
-                saveQr(item)
-                toast("QR Code salvo em Meus QR Codes.")
+                if (saveAfterPreview || original != null) {
+                    saveQr(item, original)
+                    toast(if (original != null) "QR Code atualizado." else "QR Code salvo em Meus QR Codes.")
+                }
                 dialog.dismiss()
             }
+            styleDialog(dialog)
         }
         dialog.show()
     }
@@ -343,54 +347,100 @@ class MainActivity : AppCompatActivity() {
         return result
     }
 
-    private fun saveQr(item: SavedQr) {
+    private fun saveQr(item: SavedQr, original: SavedQr? = null) {
         val items = readSavedQrs()
+        if (original != null) items.removeAll { it.name == original.name && it.url == original.url }
         items.removeAll { it.name.equals(item.name, true) }
         items.add(0, item)
-        val array = JSONArray()
-        items.forEach { array.put(JSONObject().put("name", it.name).put("url", it.url)) }
-        getSharedPreferences("saved_qrs", MODE_PRIVATE).edit().putString("items", array.toString()).apply()
+        writeSavedQrs(items)
     }
 
     private fun showSavedQrs() {
         val items = readSavedQrs()
         if (items.isEmpty()) {
-            AlertDialog.Builder(this)
+            val empty = AlertDialog.Builder(this)
                 .setTitle("Meus QR Codes")
-                .setMessage("Você ainda não salvou nenhum QR Code. Crie um para ele aparecer aqui.")
+                .setMessage("Sua coleção está vazia. Crie um QR Code para ele aparecer aqui.")
                 .setPositiveButton("Criar QR Code") { _, _ -> showCreateQrDialog() }
                 .setNegativeButton("Fechar", null)
-                .show()
+                .create()
+            empty.setOnShowListener { styleDialog(empty) }
+            empty.show()
             return
         }
-        val labels = items.map { it.name }.toTypedArray()
-        AlertDialog.Builder(this)
-            .setTitle("Meus QR Codes")
+
+        val labels = items.map { item ->
+            val subtitle = item.url.removePrefix("https://").removePrefix("http://")
+            "${item.name}\n$subtitle"
+        }.toTypedArray()
+        val dialog = AlertDialog.Builder(this)
+            .setTitle("Meus QR Codes · ${items.size}")
             .setItems(labels) { _, which -> showSavedQrActions(items[which]) }
             .setNegativeButton("Fechar", null)
-            .show()
+            .create()
+        dialog.setOnShowListener { styleDialog(dialog) }
+        dialog.show()
     }
 
     private fun showSavedQrActions(item: SavedQr) {
-        AlertDialog.Builder(this)
+        val dialog = AlertDialog.Builder(this)
             .setTitle(item.name)
-            .setItems(arrayOf("Visualizar QR Code", "Baixar imagem", "Editar nome ou link", "Excluir")) { _, which ->
+            .setMessage(item.url)
+            .setItems(arrayOf(
+                "Visualizar QR Code",
+                "Compartilhar link",
+                "Baixar imagem",
+                "Editar QR Code",
+                "Excluir QR Code"
+            )) { _, which ->
                 when (which) {
                     0 -> showQrPreview(item, false)
-                    1 -> saveQrImage(makeQrBitmap(item.url), item.name)
-                    2 -> showCreateQrDialog(item)
-                    3 -> {
-                        val items = readSavedQrs()
-                        items.removeAll { it.name == item.name && it.url == item.url }
-                        val array = JSONArray()
-                        items.forEach { array.put(JSONObject().put("name", it.name).put("url", it.url)) }
-                        getSharedPreferences("saved_qrs", MODE_PRIVATE).edit().putString("items", array.toString()).apply()
-                        toast("QR Code excluído.")
+                    1 -> {
+                        val send = Intent(Intent.ACTION_SEND).apply {
+                            type = "text/plain"
+                            putExtra(Intent.EXTRA_TEXT, item.url)
+                        }
+                        startActivity(Intent.createChooser(send, "Compartilhar QR Code"))
+                    }
+                    2 -> saveQrImage(makeQrBitmap(item.url), item.name)
+                    3 -> showCreateQrDialog(item)
+                    4 -> {
+                        val confirm = AlertDialog.Builder(this)
+                            .setTitle("Excluir QR Code?")
+                            .setMessage("“${item.name}” será removido da sua coleção.")
+                            .setNegativeButton("Cancelar", null)
+                            .setPositiveButton("Excluir") { _, _ ->
+                                val items = readSavedQrs()
+                                items.removeAll { it.name == item.name && it.url == item.url }
+                                writeSavedQrs(items)
+                                toast("QR Code excluído.")
+                                showSavedQrs()
+                            }
+                            .create()
+                        confirm.setOnShowListener { styleDialog(confirm, destructive = true) }
+                        confirm.show()
                     }
                 }
             }
             .setNegativeButton("Voltar") { _, _ -> showSavedQrs() }
-            .show()
+            .create()
+        dialog.setOnShowListener { styleDialog(dialog) }
+        dialog.show()
+    }
+
+    private fun writeSavedQrs(items: List<SavedQr>) {
+        val array = JSONArray()
+        items.forEach { array.put(JSONObject().put("name", it.name).put("url", it.url)) }
+        getSharedPreferences("saved_qrs", MODE_PRIVATE).edit()
+            .putString("items", array.toString()).apply()
+    }
+
+    private fun styleDialog(dialog: AlertDialog, destructive: Boolean = false) {
+        val green = android.graphics.Color.rgb(32, 217, 144)
+        val red = android.graphics.Color.rgb(255, 107, 107)
+        dialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setTextColor(if (destructive) red else green)
+        dialog.getButton(AlertDialog.BUTTON_NEGATIVE)?.setTextColor(0xFF9EACC0.toInt())
+        dialog.getButton(AlertDialog.BUTTON_NEUTRAL)?.setTextColor(green)
     }
 
     private fun saveQrImage(bitmap: Bitmap, name: String) {
